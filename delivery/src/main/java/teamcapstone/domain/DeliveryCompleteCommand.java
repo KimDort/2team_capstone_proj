@@ -6,4 +6,4 @@ import javax.persistence.*;
 import lombok.Data;
 
 @Data
-public class DeliveryConpmeteCommand {}
+public class DeliveryCompleteCommand {}

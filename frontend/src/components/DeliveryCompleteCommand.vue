@@ -2,7 +2,7 @@
 
     <v-card outlined>
         <v-card-title>
-            DeliveryConpmete
+            DeliveryComplete
         </v-card-title>
 
         <v-card-text>
@@ -13,9 +13,9 @@
             <v-btn
                     color="deep-purple lighten-2"
                     text
-                    @click="deliveryConpmete"
+                    @click="deliveryComplete"
             >
-                DeliveryConpmete
+                DeliveryComplete
             </v-btn>
             
             <v-btn
@@ -33,7 +33,7 @@
 <script>
    
     export default {
-        name: 'DeliveryConpmeteCommand',
+        name: 'DeliveryCompleteCommand',
         components:{},
         props: {},
         data: () => ({
@@ -45,8 +45,8 @@
         watch: {
         },
         methods: {
-            deliveryConpmete() {
-                this.$emit('deliveryConpmete', this.value);
+            deliveryComplete() {
+                this.$emit('deliveryComplete', this.value);
             },
             close() {
                 this.$emit('closeDialog');

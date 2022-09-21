@@ -24,13 +24,13 @@ public class DashboardViewHandler {
             // view 객체 생성
             Dashboard dashboard = new Dashboard();
             // view 객체에 이벤트의 Value 를 set 함
-            dashboard.setOrderId(ordered.getId());
             dashboard.setStoreName(ordered.getStoreName());
             dashboard.setItemName(ordered.getItemName());
             dashboard.setItemQty(ordered.getItemQty());
             dashboard.setPrice(ordered.getPrice());
             dashboard.setStatus("ORDERED");
             dashboard.setOrderDt(ordered.getOrderDate());
+            dashboard.setId(ordered.getId());
             // view 레파지 토리에 save
             dashboardRepository.save(dashboard);
         } catch (Exception e) {

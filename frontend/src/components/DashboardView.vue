@@ -21,7 +21,7 @@
         },
         data: () => ({
             headers: [
-                { text: "orderId", value: "orderId" },
+                { text: "id", value: "id" },
                 { text: "storeName", value: "storeName" },
                 { text: "itemName", value: "itemName" },
                 { text: "itemQty", value: "itemQty" },

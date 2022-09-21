@@ -5,9 +5,7 @@ import java.util.List;
 import javax.persistence.*;
 import lombok.Data;
 import teamcapstone.DeliveryApplication;
-import teamcapstone.domain.DeliveryCompleted;
 import teamcapstone.domain.DeliveryStarted;
-import teamcapstone.domain.Pickuped;
 
 @Entity
 @Table(name = "Delivery_table")
@@ -32,12 +30,6 @@ public class Delivery {
     public void onPostPersist() {
         DeliveryStarted deliveryStarted = new DeliveryStarted(this);
         deliveryStarted.publishAfterCommit();
-
-        DeliveryCompleted deliveryCompleted = new DeliveryCompleted(this);
-        deliveryCompleted.publishAfterCommit();
-
-        Pickuped pickuped = new Pickuped(this);
-        pickuped.publishAfterCommit();
     }
 
     public static DeliveryRepository repository() {
@@ -45,6 +37,16 @@ public class Delivery {
             DeliveryRepository.class
         );
         return deliveryRepository;
+    }
+
+    public void pickup() {
+        Pickuped pickuped = new Pickuped(this);
+        pickuped.publishAfterCommit();
+    }
+
+    public void deliveryComplete() {
+        DeliveryCompleted deliveryCompleted = new DeliveryCompleted(this);
+        deliveryCompleted.publishAfterCommit();
     }
 
     public static void deliveryStart(CookComplted cookComplted) {
