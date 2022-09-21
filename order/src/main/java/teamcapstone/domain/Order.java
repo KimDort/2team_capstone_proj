@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.*;
 import lombok.Data;
 import teamcapstone.OrderApplication;
+import teamcapstone.domain.Ordered;
 
 @Entity
 @Table(name = "Order_table")
@@ -28,7 +29,13 @@ public class Order {
     private Date orderDate;
 
     @PostPersist
-    public void onPostPersist() {}
+    public void onPostPersist() {
+        //Following code causes dependency to external APIs
+        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
+
+        Ordered ordered = new Ordered(this);
+        ordered.publishAfterCommit();
+    }
 
     public static OrderRepository repository() {
         OrderRepository orderRepository = OrderApplication.applicationContext.getBean(
@@ -38,17 +45,7 @@ public class Order {
     }
 
     public void order() {
-        Ordered ordered = new Ordered(this);
-        ordered.publishAfterCommit();
-
-        //Following code causes dependency to external APIs
-        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
-
-        teamcapstone.external.Payinfo payinfo = new teamcapstone.external.Payinfo();
-        // mappings goes here
-        OrderApplication.applicationContext
-            .getBean(teamcapstone.external.PayinfoService.class)
-            .pay(payinfo);
+        //
     }
 
     public void orderCancel() {

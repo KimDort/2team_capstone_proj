@@ -14,11 +14,6 @@ public class OrderHateoasProcessor
     public EntityModel<Order> process(EntityModel<Order> model) {
         model.add(
             Link
-                .of(model.getRequiredLink("self").getHref() + "/order")
-                .withRel("order")
-        );
-        model.add(
-            Link
                 .of(model.getRequiredLink("self").getHref() + "/ordercancel")
                 .withRel("ordercancel")
         );

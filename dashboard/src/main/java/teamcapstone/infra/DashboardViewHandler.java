@@ -24,13 +24,13 @@ public class DashboardViewHandler {
             // view 객체 생성
             Dashboard dashboard = new Dashboard();
             // view 객체에 이벤트의 Value 를 set 함
-            dashboard.setOrderId(ordered.getId());
             dashboard.setStoreName(ordered.getStoreName());
             dashboard.setItemName(ordered.getItemName());
             dashboard.setItemQty(ordered.getItemQty());
             dashboard.setPrice(ordered.getPrice());
             dashboard.setStatus("ORDERED");
             dashboard.setOrderDt(ordered.getOrderDate());
+            dashboard.setId(ordered.getId());
             // view 레파지 토리에 save
             dashboardRepository.save(dashboard);
         } catch (Exception e) {
@@ -45,7 +45,7 @@ public class DashboardViewHandler {
         try {
             if (!storeConfirmed.validate()) return;
             // view 객체 조회
-            Optional<Dashboard> dashboardOptional = dashboardRepository.findByOrderId(
+            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(
                 storeConfirmed.getOrderId()
             );
 
@@ -68,7 +68,7 @@ public class DashboardViewHandler {
         try {
             if (!deliveryStarted.validate()) return;
             // view 객체 조회
-            Optional<Dashboard> dashboardOptional = dashboardRepository.findByOrderId(
+            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(
                 deliveryStarted.getOrderId()
             );
 
@@ -91,7 +91,7 @@ public class DashboardViewHandler {
         try {
             if (!paymentApproved.validate()) return;
             // view 객체 조회
-            Optional<Dashboard> dashboardOptional = dashboardRepository.findByOrderId(
+            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(
                 paymentApproved.getOrderId()
             );
 
@@ -114,7 +114,7 @@ public class DashboardViewHandler {
         try {
             if (!orderCanceled.validate()) return;
             // view 객체 조회
-            Optional<Dashboard> dashboardOptional = dashboardRepository.findByOrderId(
+            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(
                 orderCanceled.getId()
             );
 
@@ -137,7 +137,7 @@ public class DashboardViewHandler {
         try {
             if (!deliveryCompleted.validate()) return;
             // view 객체 조회
-            Optional<Dashboard> dashboardOptional = dashboardRepository.findByOrderId(
+            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(
                 deliveryCompleted.getOrderId()
             );
 
@@ -159,7 +159,7 @@ public class DashboardViewHandler {
         try {
             if (!pickuped.validate()) return;
             // view 객체 조회
-            Optional<Dashboard> dashboardOptional = dashboardRepository.findByOrderId(
+            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(
                 pickuped.getOrderId()
             );
 
@@ -182,7 +182,7 @@ public class DashboardViewHandler {
         try {
             if (!cookComplted.validate()) return;
             // view 객체 조회
-            Optional<Dashboard> dashboardOptional = dashboardRepository.findByOrderId(
+            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(
                 cookComplted.getOrderId()
             );
 
@@ -206,7 +206,7 @@ public class DashboardViewHandler {
         try {
             if (!paymentCanceled.validate()) return;
             // view 객체 조회
-            Optional<Dashboard> dashboardOptional = dashboardRepository.findByOrderId(
+            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(
                 paymentCanceled.getOrderId()
             );
 
@@ -229,7 +229,7 @@ public class DashboardViewHandler {
         try {
             if (!storeCanceled.validate()) return;
             // view 객체 조회
-            Optional<Dashboard> dashboardOptional = dashboardRepository.findByOrderId(
+            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(
                 storeCanceled.getOrderId()
             );
 
