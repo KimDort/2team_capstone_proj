@@ -5,9 +5,7 @@ import java.util.List;
 import javax.persistence.*;
 import lombok.Data;
 import teamcapstone.DeliveryApplication;
-import teamcapstone.domain.DeliveryCompleted;
 import teamcapstone.domain.DeliveryStarted;
-import teamcapstone.domain.Pickuped;
 
 @Entity
 @Table(name = "Delivery_table")
@@ -32,12 +30,6 @@ public class Delivery {
     public void onPostPersist() {
         DeliveryStarted deliveryStarted = new DeliveryStarted(this);
         deliveryStarted.publishAfterCommit();
-
-        DeliveryCompleted deliveryCompleted = new DeliveryCompleted(this);
-        deliveryCompleted.publishAfterCommit();
-
-        Pickuped pickuped = new Pickuped(this);
-        pickuped.publishAfterCommit();
     }
 
     public static DeliveryRepository repository() {
@@ -47,27 +39,28 @@ public class Delivery {
         return deliveryRepository;
     }
 
+    public void pickup() {
+        this.pickupedDt = new Date();
+        this.status = "PICKUPED";
+        Pickuped pickuped = new Pickuped(this);
+        pickuped.publishAfterCommit();
+    }
+
+    public void deliveryComplete() {
+        this.compDt = new Date();
+        this.status = "DELIVERY_COMPLETED";
+        DeliveryCompleted deliveryCompleted = new DeliveryCompleted(this);
+        deliveryCompleted.publishAfterCommit();
+    }
+
     public static void deliveryStart(CookComplted cookComplted) {
-        /** Example 1:  new item 
         Delivery delivery = new Delivery();
+        delivery.setOrderId(cookComplted.getOrderId());
+        delivery.setStartDt(new Date());
+        delivery.setStatus("DELIVERY_STARTED");
         repository().save(delivery);
 
         DeliveryStarted deliveryStarted = new DeliveryStarted(delivery);
         deliveryStarted.publishAfterCommit();
-        */
-
-        /** Example 2:  finding and process
-        
-        repository().findById(cookComplted.get???()).ifPresent(delivery->{
-            
-            delivery // do something
-            repository().save(delivery);
-
-            DeliveryStarted deliveryStarted = new DeliveryStarted(delivery);
-            deliveryStarted.publishAfterCommit();
-
-         });
-        */
-
     }
 }

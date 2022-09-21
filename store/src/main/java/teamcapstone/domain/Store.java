@@ -3,6 +3,9 @@ package teamcapstone.domain;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import lombok.Data;
 import teamcapstone.StoreApplication;
 import teamcapstone.domain.CookComplted;
@@ -32,22 +35,20 @@ public class Store {
 
     private Date orderDate;
 
+    @CreationTimestamp
     private Date compltDate;
 
     @PostPersist
     public void onPostPersist() {
         StoreConfirmed storeConfirmed = new StoreConfirmed(this);
         storeConfirmed.publishAfterCommit();
-
-        StoreCanceled storeCanceled = new StoreCanceled(this);
-        storeCanceled.publishAfterCommit();
-
-        CookComplted cookComplted = new CookComplted(this);
-        cookComplted.publishAfterCommit();
     }
 
     @PreRemove
-    public void onPreRemove() {}
+    public void onPreRemove() {
+        StoreCanceled storeCanceled = new StoreCanceled(this);
+        storeCanceled.publishAfterCommit();
+    }
 
     public static StoreRepository repository() {
         StoreRepository storeRepository = StoreApplication.applicationContext.getBean(
@@ -56,12 +57,20 @@ public class Store {
         return storeRepository;
     }
 
-    public static void orderRecevie(PaymentApproved paymentApproved) {
-        /** Example 1:  new item 
-        Store store = new Store();
-        repository().save(store);
+    public void cookComplt() {
+        CookComplted cookComplted = new CookComplted(this);
+        cookComplted.publishAfterCommit();
+    }
 
-        */
+    public static void orderRecevie(PaymentApproved paymentApproved) {
+        //Example 1:  new item 
+        Store store = new Store();
+
+        store.setOrderId(paymentApproved.getOrderId());
+        store.setItemPrice(paymentApproved.getPrice().longValue());
+        store.setStoreName("SAMPLE_STORE_1");
+
+        repository().save(store);
 
         /** Example 2:  finding and process
         

@@ -35,6 +35,9 @@ public class Order {
         // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
 
         teamcapstone.external.Payinfo payinfo = new teamcapstone.external.Payinfo();
+        payinfo.setOrderId(id);
+        payinfo.setPrice((double)price);
+        payinfo.setStatus(orderStatus);
         // mappings goes here
         OrderApplication.applicationContext
             .getBean(teamcapstone.external.PayinfoService.class)
@@ -42,9 +45,10 @@ public class Order {
 
         Ordered ordered = new Ordered(this);
         ordered.publishAfterCommit();
-
+/*
         OrderCanceled orderCanceled = new OrderCanceled(this);
         orderCanceled.publishAfterCommit();
+         */
     }
 
     public static OrderRepository repository() {

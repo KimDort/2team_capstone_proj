@@ -27,10 +27,14 @@ public class Payinfo {
     public void onPostPersist() {
         PaymentApproved paymentApproved = new PaymentApproved(this);
         paymentApproved.publishAfterCommit();
+    }
 
+    @PreRemove
+    public void onPreRemove() {
         PaymentCanceled paymentCanceled = new PaymentCanceled(this);
         paymentCanceled.publishAfterCommit();
     }
+
 
     public static PayinfoRepository repository() {
         PayinfoRepository payinfoRepository = PaymentApplication.applicationContext.getBean(
