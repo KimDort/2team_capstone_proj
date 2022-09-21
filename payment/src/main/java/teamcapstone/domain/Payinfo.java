@@ -40,7 +40,7 @@ public class Payinfo {
     }
 
     public static void payCancel(OrderCanceled orderCanceled) {
-        /** Example 1:  new item 
+        /** Example 1:  new item  
         Payinfo payinfo = new Payinfo();
         repository().save(payinfo);
 
@@ -48,18 +48,19 @@ public class Payinfo {
         paymentCanceled.publishAfterCommit();
         */
 
-        /** Example 2:  finding and process
+        /**  Example 2:  finding and process */
         
-        repository().findById(orderCanceled.get???()).ifPresent(payinfo->{
+        repository().findById(orderCanceled.getId()).ifPresent(payinfo->{
             
-            payinfo // do something
+            //payinfo // do something
+            payinfo.status = orderCanceled.getOrderStatus();
+
             repository().save(payinfo);
 
             PaymentCanceled paymentCanceled = new PaymentCanceled(payinfo);
             paymentCanceled.publishAfterCommit();
 
          });
-        */
 
     }
 
@@ -72,18 +73,19 @@ public class Payinfo {
         paymentCanceled.publishAfterCommit();
         */
 
-        /** Example 2:  finding and process
+        /** Example 2:  finding and process */
         
-        repository().findById(storeCanceled.get???()).ifPresent(payinfo->{
+        repository().findById(storeCanceled.getId()).ifPresent(payinfo->{
+            //payinfo // do something
             
-            payinfo // do something
+            payinfo.status = storeCanceled.getOrderStatus(); 
             repository().save(payinfo);
 
             PaymentCanceled paymentCanceled = new PaymentCanceled(payinfo);
             paymentCanceled.publishAfterCommit();
 
          });
-        */
+        
 
     }
 }
