@@ -17,5 +17,26 @@ public class PayinfoController {
 
     @Autowired
     PayinfoRepository payinfoRepository;
+
+    @RequestMapping(
+        value = "payinfos/{id}/pay",
+        method = RequestMethod.PUT,
+        produces = "application/json;charset=UTF-8"
+    )
+    public Payinfo pay(
+        @PathVariable(value = "id") Long id,
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) throws Exception {
+        System.out.println("##### /payinfo/pay  called #####");
+        Optional<Payinfo> optionalPayinfo = payinfoRepository.findById(id);
+
+        optionalPayinfo.orElseThrow(() -> new Exception("No Entity Found"));
+        Payinfo payinfo = optionalPayinfo.get();
+        payinfo.pay();
+
+        payinfoRepository.save(payinfo);
+        return payinfo;
+    }
     // keep
 }
