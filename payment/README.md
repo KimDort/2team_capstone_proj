@@ -65,5 +65,3 @@ Following problems may be occurred:
 
 https://labs.msaez.io/#/courses/cna-full/full-course-cna/ops-utility
 
-#test
-

@@ -12,12 +12,6 @@ public class StoreHateoasProcessor
 
     @Override
     public EntityModel<Store> process(EntityModel<Store> model) {
-        model.add(
-            Link
-                .of(model.getRequiredLink("self").getHref() + "/cookcomplt")
-                .withRel("cookcomplt")
-        );
-
         return model;
     }
 }

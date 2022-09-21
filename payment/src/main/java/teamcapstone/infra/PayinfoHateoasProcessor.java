@@ -12,12 +12,6 @@ public class PayinfoHateoasProcessor
 
     @Override
     public EntityModel<Payinfo> process(EntityModel<Payinfo> model) {
-        model.add(
-            Link
-                .of(model.getRequiredLink("self").getHref() + "/pay")
-                .withRel("pay")
-        );
-
         return model;
     }
 }

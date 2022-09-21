@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.*;
 import lombok.Data;
 import teamcapstone.StoreApplication;
+import teamcapstone.domain.CookComplted;
 import teamcapstone.domain.StoreCanceled;
 import teamcapstone.domain.StoreConfirmed;
 
@@ -37,24 +38,22 @@ public class Store {
     public void onPostPersist() {
         StoreConfirmed storeConfirmed = new StoreConfirmed(this);
         storeConfirmed.publishAfterCommit();
+
+        StoreCanceled storeCanceled = new StoreCanceled(this);
+        storeCanceled.publishAfterCommit();
+
+        CookComplted cookComplted = new CookComplted(this);
+        cookComplted.publishAfterCommit();
     }
 
     @PreRemove
-    public void onPreRemove() {
-        StoreCanceled storeCanceled = new StoreCanceled(this);
-        storeCanceled.publishAfterCommit();
-    }
+    public void onPreRemove() {}
 
     public static StoreRepository repository() {
         StoreRepository storeRepository = StoreApplication.applicationContext.getBean(
             StoreRepository.class
         );
         return storeRepository;
-    }
-
-    public void cookComplt() {
-        CookComplted cookComplted = new CookComplted(this);
-        cookComplted.publishAfterCommit();
     }
 
     public static void orderRecevie(PaymentApproved paymentApproved) {

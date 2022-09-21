@@ -12,7 +12,7 @@ public class Dashboard {
 
     @Id
     //@GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
+    private Long orderId;
 
     private String storeName;
     private String itemName;

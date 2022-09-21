@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.*;
 import lombok.Data;
 import teamcapstone.PaymentApplication;
+import teamcapstone.domain.PaymentApproved;
 import teamcapstone.domain.PaymentCanceled;
 
 @Entity
@@ -24,6 +25,9 @@ public class Payinfo {
 
     @PostPersist
     public void onPostPersist() {
+        PaymentApproved paymentApproved = new PaymentApproved(this);
+        paymentApproved.publishAfterCommit();
+
         PaymentCanceled paymentCanceled = new PaymentCanceled(this);
         paymentCanceled.publishAfterCommit();
     }
@@ -33,11 +37,6 @@ public class Payinfo {
             PayinfoRepository.class
         );
         return payinfoRepository;
-    }
-
-    public void pay() {
-        PaymentApproved paymentApproved = new PaymentApproved(this);
-        paymentApproved.publishAfterCommit();
     }
 
     public static void payCancel(OrderCanceled orderCanceled) {
@@ -63,7 +62,7 @@ public class Payinfo {
 
          });
 
-    }//test
+    }
 
     public static void payCancel(StoreCanceled storeCanceled) {
         /** Example 1:  new item 
