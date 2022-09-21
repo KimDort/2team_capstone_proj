@@ -63,7 +63,7 @@ public class Payinfo {
 
          });
 
-    }
+    }//test
 
     public static void payCancel(StoreCanceled storeCanceled) {
         /** Example 1:  new item 
