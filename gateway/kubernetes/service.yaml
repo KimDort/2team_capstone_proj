@@ -4,10 +4,10 @@ metadata:
   name: gateway
   labels:
     app: gateway
+    serivce: gateway
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
     app: gateway
-  type: LoadBalancer
