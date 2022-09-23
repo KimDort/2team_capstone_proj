@@ -10,19 +10,19 @@
 
 ## 목차
 
-- 분석설계
-- SAGA Pattern (Pub / Sub)                           
-- CQRS Pattern                                       
-- Correlation / Compensation(Unique Key)             
-- Request / Response (Feign Client / Sync.Async)     
-- Gateway                                            
-- Deploy / Pipeline                                  
-- Circuit Breaker                                    
-- Autoscale(HPA)                                     
-- Self-Healing(Liveness Probe)                       
-- Zero-Downtime Deploy(Readiness Probe)              
-- Config Map / Persistence Volume                    
-- Polyglot
+- 분석설계							- 공동작업
+- SAGA Pattern (Pub / Sub)                           	   - 공동작업	
+- CQRS Pattern                              		   - 이재영 대리         
+- Correlation / Compensation(Unique Key)                   - 이재영 대리
+- Request / Response (Feign Client / Sync.Async)   	   - 최원식 과장, 황상식 과장  
+- Gateway                                                  - 공동작업
+- Deploy / Pipeline					   - 공동작업                                  
+- Circuit Breaker       				   - 김영준 대리                             
+- Autoscale(HPA)  					   - 김영준 대리                                   
+- Self-Healing(Liveness Probe) 				   - 김영준 대리                      
+- Zero-Downtime Deploy(Readiness Probe)        		   - 이재영 대리      
+- Config Map / Persistence Volume            		   - 김영준 대리        
+- Polyglot 						   - 이재영 대리
 
 #### 작업은 공동으로 함께 진행하였으며 각 서비스별로 담당자를 나누어 수행하였음.
 
