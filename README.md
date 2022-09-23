@@ -716,7 +716,7 @@ MSA로 서비스 구축 시, 특정 서비스나 pod가 동작하지 않을 때
 
 서킷브레이커 설정 - order 서비스에 서킷 브레이커를 설정함.
 
-```
+```diff
 kubectl apply -f - << EOF
   apiVersion: networking.istio.io/v1alpha3
   kind: DestinationRule
@@ -731,11 +731,14 @@ kubectl apply -f - << EOF
       outlierDetection:
         consecutive5xxErrors: 1
         interval: 1s
-        baseEjectionTime: 3m
++        baseEjectionTime: 3m		//장애 발생 시 3분동안 요청 대상에서 제외시킴.
         maxEjectionPercent: 100
 EOF
 ```
 
+서킷브레이커 설정 후 하나의 pod를 down시키면 istio 서킷브레이커에 의해 해당 pod로 3분동안 요청이 가지 않는다.
+
+![image](https://user-images.githubusercontent.com/23250734/191890867-9dbac988-d071-44c5-9399-c4afebf49aff.png)
 
 
 --------------------------------------------------
