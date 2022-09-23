@@ -960,11 +960,99 @@ Mysql DB 생성 후 서비스에 연결, pod 재시작 후 데이터가 유실�
 ```
 #### mysql 준비
 
-mysql deployment.yaml 작성 후 쿠버네티스에 배포한다.
+mysql 배포를 위한 yaml 작성 후 쿠버네티스에 배포한다.
 
-deployment.yaml에 PVC 도 함께 생성하였다.
+mysql-pvc.yaml
 
-!!! 이미지 추가 !!!!!
+```diff
+apiVersion: v1
++kind: PersistentVolumeClaim	//PVC 생성.
+metadata:
+  name: fs
+  labels:
+    app: test-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Mi
+```
+
+mysqlsecret.yaml
+
+```diff
+apiVersion: v1
++ kind: Secret		//시크릿 생성
+metadata:
+  name: mysql-pass
+  namespace: msa
+type: Opaque
+data:
++  password: *******		//패스워드 저장.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  namespace: msa
+data:
+  _DATASOURCE_ADDRESS: mysql:3306
+  _DATASOURCE_TABLESPACE: store
+  _DATASOURCE_USERNAME: root
+```
+
+
+mysql-deployment.yaml - mysql pods, service 
+
+```diff
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql
+  namespace: msa
+  labels:
+    name: lbl-k8s-mysql
+spec:
+  containers:
+  - name: mysql
+    image: mysql:latest
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysql-pass
+          key: password
+    ports:
+    - name: mysql
+      containerPort: 3306
+      protocol: TCP
+    volumeMounts:
+    - name: k8s-mysql-storage
+      mountPath: /var/lib/mysql
+  volumes:
+  - name: k8s-mysql-storage
+    persistentVolumeClaim:
+      claimName: "fs"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: lbl-k8s-mysql
+  name: mysql
+  namespace: msa
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+    targetPort: 3306
+  selector:
+    name: lbl-k8s-mysql
+  type: ClusterIP
+```
+
 
 ![image](https://user-images.githubusercontent.com/23250734/191879122-4fdd9e79-6f17-420e-91c2-de088e1056de.png)
 
