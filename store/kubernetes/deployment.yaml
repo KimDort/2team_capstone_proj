@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: store
+  namespace: msa
   labels:
     app: store
 spec:
@@ -16,9 +17,30 @@ spec:
     spec:
       containers:
         - name: store
-          image: polales/store:v1.2
+          image: polales/store:v1.4
           ports:
             - containerPort: 8080
+          env:				
+            - name: _DATASOURCE_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config          
+                  key: _DATASOURCE_ADDRESS
+            - name: _DATASOURCE_TABLESPACE
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config          
+                  key: _DATASOURCE_TABLESPACE
+            - name: _DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config          
+                  key: _DATASOURCE_USERNAME
+            - name: _DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-pass
+                  key: password
           readinessProbe:
             httpGet:
               path: '/actuator/health'
