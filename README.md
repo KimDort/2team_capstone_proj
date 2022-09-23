@@ -718,8 +718,55 @@ TODO
 ```
 yaml을 통한 쿠버네티스 배포 시, 
 Liveness Probe 설정을 통해 문제가 있는 pod를 제외 후 다른 pod를 생성하는 self-healing 구현이 가능하다.
-
 Liveness Probe를 설정하면 쿠버네티스에서 주기적으로 pod의 상태를 체크해, 문제가 있는 pod종료 후 새로운 pod를 생성한다.
+
+자동 생성된 프로젝트 코드에선 spring boot actuator를 사용해 상태를 체크한다.
+```
+
+사전 준비사항
+
+livenessProbe 상태 shutdown을 위해 order서비스 application.yml에 아래의 설정 추가.
+
+```diff
+spring:
+  profiles: docker
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: my-kafka:9092
+        streams:
+          binder:
+            configuration:
+              default:
+                key:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+      bindings:
+        event-in:
+          group: order
+          destination: teamcapstone
+          contentType: application/json
+        event-out:
+          destination: teamcapstone
+          contentType: application/json
+
+api:
+  url:
+    payment: payment:8080
+
++management:
++  endpoint:
++    health:
++      show-details: "ALWAYS"
++    shutdown:
++      enabled: true		//health-check shutdown 명령어 사용을 위해 추가.
++  endpoints:
++    web:
++      exposure:
++        include: "*"
+
 ```
 
 deployment.yaml파일
@@ -732,7 +779,7 @@ metadata:
   labels:
     app: order
 spec:
-  replicas: 4
+  replicas: 1
   selector:
     matchLabels:
       app: order
@@ -743,7 +790,7 @@ spec:
     spec:
       containers:
         - name: order
-          image: vkv6581/order:v1
+          image: vkv6581/order:v1.4
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -768,14 +815,25 @@ spec:
 
 pods 목록 확인.
 
-![image](https://user-images.githubusercontent.com/23250734/191873984-a5104601-278a-4fed-93d8-4661e147c878.png)
+![image](https://user-images.githubusercontent.com/23250734/191878048-ae86d3fc-535f-433b-b677-3addfe310d4d.png)
 
-order 서비스의 health-check정보를 비활성화 처리.
+order 서비스의 actuator shutdown명령어를 통해 셧다운.
 
 ```
-http put localhost:8080/actuator/down
-http localhost:8080/actuator/health
+http POST localhost:8080/actuator/shutdown
 ```
+
+![image](https://user-images.githubusercontent.com/23250734/191878227-0b7f3c94-5eda-4789-ae90-31367c08a97a.png)
+
+
+pods가 내려가고, 재시도 횟수가 1 증가한 모습을 확인할 수 있다.
+
+![image](https://user-images.githubusercontent.com/23250734/191878356-5014d171-9cb3-4ee2-bea4-a5af76276f07.png)
+
+약간의 시간이 지난 후 pods 정상 상태로 자동 복구된 모습 확인.
+
+![image](https://user-images.githubusercontent.com/23250734/191878380-84d2a134-34a7-4d96-b8f7-71f8e5ff82e9.png)
+
 
 --------------------------------------------------
 ## Zero-Downtime Deploy(Readiness Probe) 
