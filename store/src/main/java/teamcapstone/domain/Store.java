@@ -2,6 +2,8 @@ package teamcapstone.domain;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
 import javax.persistence.*;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -86,22 +88,11 @@ public class Store {
     }
 
     public static void orderRecevie(OrderCanceled orderCanceled) {
-        /** Example 1:  new item 
-        Store store = new Store();
-        repository().save(store);
 
-        */
-
-        /** Example 2:  finding and process
-        
-        repository().findById(orderCanceled.get???()).ifPresent(store->{
-            
-            store // do something
+        //Example 2:  finding and process
+        repository().findByOrderId(orderCanceled.getId()).ifPresent(store->{
             repository().save(store);
-
-
          });
-        */
 
     }
 }

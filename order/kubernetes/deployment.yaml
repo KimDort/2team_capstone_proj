@@ -2,10 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: order
+  namespace: msa
   labels:
     app: order
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: order
@@ -16,9 +17,33 @@ spec:
     spec:
       containers:
         - name: order
-          image: username/order:latest
+          image: ghcr.io/acmexii/delivery:istio-v1
           ports:
             - containerPort: 8080
+          env:				
+            - name: _DATASOURCE_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config          
+                  key: _DATASOURCE_ADDRESS
+            - name: _DATASOURCE_TABLESPACE
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config          
+                  key: _DATASOURCE_TABLESPACE
+            - name: _DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config          
+                  key: _DATASOURCE_USERNAME
+            - name: _DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-pass
+                  key: password
+          resources:
+              requests:
+                cpu: "200m"
           readinessProbe:
             httpGet:
               path: '/actuator/health'
@@ -40,6 +65,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: order
+  namespace: msa
   labels:
     app: order
 spec:

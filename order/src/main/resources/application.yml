@@ -3,6 +3,16 @@ server:
 spring:
   application:
     name: order
+
+feign:
+  hystrix:
+    enabled: true
+
+hystrix:
+  command:
+    # 전역설정
+    default:
+      execution.isolation.thread.timeoutInMilliseconds: 610
 ---
 
 spring:
@@ -50,6 +60,21 @@ server:
 
 spring:
   profiles: docker
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL57Dialect
+  datasource:
+    url: jdbc:mysql://${_DATASOURCE_ADDRESS:35.221.110.118:3306}/${_DATASOURCE_TABLESPACE:my-database}
+    username: ${_DATASOURCE_USERNAME:root1}
+    password: ${_DATASOURCE_PASSWORD:secretpassword}
+    driverClassName: com.mysql.cj.jdbc.Driver
   cloud:
     stream:
       kafka:
@@ -75,13 +100,3 @@ spring:
 api:
   url:
     payment: payment:8080
-
-feign:
-  hystrix:
-    enabled: true
-
-hystrix:
-  command:
-    # 전역설정
-    default:
-      execution.isolation.thread.timeoutInMilliseconds: 610
