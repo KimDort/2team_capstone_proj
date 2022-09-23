@@ -23,7 +23,7 @@
 - Zero-Downtime Deploy(Readiness Probe)              : 공통(deployment.yaml에 작성)
 - Config Map / Persistence Volume                    : 
 - Polyglot
-- 
+
 --------------------------------------------------
 ## 분석 설계 (공통)
 
@@ -703,8 +703,39 @@ kubectl port-forward deploy/order 8080:8080
 
 --------------------------------------------------
 ## Circuit Breaker
+```
+MSA로 서비스 구축 시, 특정 서비스나 pod가 동작하지 않을 때
+해당 서비스로 가는 요청을 사전에 차단해 부하나 장애 전파를 방지할 수 있다. (서킷브레이커)
 
-TODO
+서킷브레이커 종류는 많으나, 이번 팀 프로젝트에선 istio를 통한 서킷브레이커를 구축하고 테스트하였다.
+```
+#### 사전 작업
+- 쿠버네티스에 istio배포 및 서비스 연결
+
+#### 테스트
+
+서킷브레이커 설정 - order 서비스에 서킷 브레이커를 설정함.
+
+```
+kubectl apply -f - << EOF
+  apiVersion: networking.istio.io/v1alpha3
+  kind: DestinationRule
+  metadata:
+    name: dr-delivery
+    namespace: tutorial
+  spec:
+    host: order
+    trafficPolicy:
+      loadBalancer:
+        simple: ROUND_ROBIN		
+      outlierDetection:
+        consecutive5xxErrors: 1
+        interval: 1s
+        baseEjectionTime: 3m
+        maxEjectionPercent: 100
+EOF
+```
+
 
 
 --------------------------------------------------
