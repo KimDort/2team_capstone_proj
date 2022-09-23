@@ -846,7 +846,7 @@ Readiness Probe를 설정하면 쿠버네티스에서 주기적으로 pod의 상
 
 #### - 일반적인 배포 
 
-아래처럼 deployment.yaml파일 아래에 readinessprobe 주석한 후 배포한다.
+아래처럼 deployment.yaml파일 아래에 readinessprobe 제거한 후 배포한다.
 
 ```
 apiVersion: apps/v1
@@ -870,14 +870,14 @@ spec:
           image: vkv6581/order:v1
           ports:
             - containerPort: 8080
-          # readinessProbe:
-          #   httpGet:
-          #     path: '/actuator/health'
-          #     port: 8080
-          #   initialDelaySeconds: 10
-          #   timeoutSeconds: 2
-          #   periodSeconds: 5
-          #   failureThreshold: 10
+-          readinessProbe:
+-            httpGet:
+-              path: '/actuator/health'
+-              port: 8080
+-            initialDelaySeconds: 10
+-            timeoutSeconds: 2
+-            periodSeconds: 5
+-            failureThreshold: 10
           # livenessProbe:
           #   httpGet:
           #     path: '/actuator/health'
