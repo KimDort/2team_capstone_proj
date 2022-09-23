@@ -1018,11 +1018,11 @@ spec:
   - name: mysql
     image: mysql:latest
     env:
-    - name: MYSQL_ROOT_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: mysql-pass
-          key: password
++    - name: MYSQL_ROOT_PASSWORD	//secret 에 있는 키 사용
++      valueFrom:
++        secretKeyRef:
++          name: mysql-pass
++          key: password
     ports:
     - name: mysql
       containerPort: 3306
@@ -1030,10 +1030,10 @@ spec:
     volumeMounts:
     - name: k8s-mysql-storage
       mountPath: /var/lib/mysql
-  volumes:
-  - name: k8s-mysql-storage
-    persistentVolumeClaim:
-      claimName: "fs"
++  volumes:				//PVC 연결
++  - name: k8s-mysql-storage
++    persistentVolumeClaim:
++      claimName: "fs"
 
 ---
 apiVersion: v1
