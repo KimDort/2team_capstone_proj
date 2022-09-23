@@ -8,21 +8,27 @@
 |     |  김영준  | 대리 | Platform개발팀   |
 |     |  이재영 | 대리 | 디지털워크그룹  |
 
-## ✏️ Evaluation
+## 목차
 
 - 분석설계
-- SAGA Pattern (Pub / Sub)                           : 공통
-- CQRS Pattern                                       : 
-- Correlation / Compensation(Unique Key)             :
-- Request / Response (Feign Client / Sync.Async)     : Order
-- Gateway                                            : 김영준 대리
-- Deploy / Pipeline                                  : 공통
-- Circuit Breaker                                    : Payment
-- Autoscale(HPA)                                     : 공통
-- Self-Healing(Liveness Probe)                       : 공통(deployment.yaml에 작성)
-- Zero-Downtime Deploy(Readiness Probe)              : 공통(deployment.yaml에 작성)
-- Config Map / Persistence Volume                    : 
+- SAGA Pattern (Pub / Sub)                           
+- CQRS Pattern                                       
+- Correlation / Compensation(Unique Key)             
+- Request / Response (Feign Client / Sync.Async)     
+- Gateway                                            
+- Deploy / Pipeline                                  
+- Circuit Breaker                                    
+- Autoscale(HPA)                                     
+- Self-Healing(Liveness Probe)                       
+- Zero-Downtime Deploy(Readiness Probe)              
+- Config Map / Persistence Volume                    
 - Polyglot
+
+작업은 공동으로 함께 진행하였으며 각 서비스별로 담당자를 나누어 수행하였음.
+최원식 - order
+황상식 - payment
+김영준 - store
+이재영 - delivery
 
 --------------------------------------------------
 ## 분석 설계 (공통)
@@ -1131,5 +1137,245 @@ mysql를 종료 후 재시작한다.
 mysql을 종료 후 재시작해도 데이터가 유지되는 것을 확인한다.
 
 ![image](https://user-images.githubusercontent.com/23250734/191879464-b9bd10d9-8d29-4582-9b4a-6b4ea9e5eab3.png)
+
+--------------------------------------------------
+## Polyglot
+
+```
+각 마이크로서비스 별 특성에 맞는 언어나 DB를 선택해 개발하는 것을 polyglot이라고 한다.
+
+이번 팀 프로젝트에선 서비스별 DB를 다르게 사용해 테스트하였다.
+order서비스는 mysql, dashboard서비스는 기본 제공 내장 H2 DB를 사용하고, 각 서비스 간 통신과 동작에 문제가 없는 것을 확인한다.
+```
+
+#### 사전 준비사항
+
+```
+클러스터에 mysql 배포.
+```
+
+#### 테스트를 위한 deployment설정 및 배포.
+
+order서비스 application.yml
+
+```diff
+spring:
+  profiles: docker
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL57Dialect
++  datasource:
++    url: jdbc:mysql://${_DATASOURCE_ADDRESS:35.221.110.118:3306}/${_DATASOURCE_TABLESPACE:my-database}		//mysql로 구현.
++    username: ${_DATASOURCE_USERNAME:root1}
++    password: ${_DATASOURCE_PASSWORD:secretpassword}
++    driverClassName: com.mysql.cj.jdbc.Driver
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: my-kafka:9092
+        streams:
+          binder:
+            configuration:
+              default:
+                key:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+      bindings:
+        event-in:
+          group: order
+          destination: teamcapstone
+          contentType: application/json
+        event-out:
+          destination: teamcapstone
+          contentType: application/json
+
+api:
+  url:
+    payment: payment:8080
+```
+
+dashboard 서비스 application yml
+
+```diff
++ 따로 DB 설정하지 않고 기본 인메모리 DB 기능 사용.
+spring:
+  profiles: docker
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: my-kafka:9092
+        streams:
+          binder:
+            configuration:
+              default:
+                key:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+      bindings:
+        event-in:
+          group: dashboard
+          destination: teamcapstone
+          contentType: application/json
+        event-out:
+          destination: teamcapstone
+          contentType: application/json
+```
+
+
+pod 배포.
+
+order서비스의 deployment.yaml
+
+```diff
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order
+  labels:
+    app: order
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+    spec:
+      containers:
+        - name: order
+          image: vkv6581/order:v2.1
+          ports:
+            - containerPort: 8080
++          env:						//클러스터 내부의 DB정보
++            - name: _DATASOURCE_ADDRESS
++              valueFrom:
++                configMapKeyRef:
++                  name: mysql-config          
++                  key: _DATASOURCE_ADDRESS
++            - name: _DATASOURCE_TABLESPACE
++              valueFrom:
++                configMapKeyRef:
++                  name: mysql-config          
++                  key: _DATASOURCE_TABLESPACE
++            - name: _DATASOURCE_USERNAME
++              valueFrom:
++                configMapKeyRef:
++                  name: mysql-config          
++                  key: _DATASOURCE_USERNAME
++            - name: _DATASOURCE_PASSWORD
++              valueFrom:
++                secretKeyRef:
++                  name: mysql-pass
++                  key: password
+          resources:
+              requests:
+                cpu: "200m"
+          readinessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 120
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order
+  labels:
+    app: order
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: order
+```
+
+dashboard서비스의 deployment.yaml
+
+```
++ //DB정보 없음.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  labels:
+    app: dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard
+  template:
+    metadata:
+      labels:
+        app: dashboard
+    spec:
+      containers:
+        - name: dashboard
+          image: vkv6581/dashboard:v1
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: '/actuator/health'
+              port: 8080
+            initialDelaySeconds: 120
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 5
+```
+
+쿠버네티스에 배포
+
+![image](https://user-images.githubusercontent.com/23250734/191895525-90482e47-d37d-412a-9c15-46a62683b6ef.png)
+
+
+#### 테스트
+
+주문 실행
+
+![image](https://user-images.githubusercontent.com/23250734/191895597-3d10428f-edec-4950-bcf6-ac6e5c488e01.png)
+
+주문 후 주문정보 DB 확인.
+
+![image](https://user-images.githubusercontent.com/23250734/191895794-0748ab9c-a95d-440e-9f32-e1f47bb47212.png)
+
+dashboard에 주문 정보 입력된 것을 확인.
+
+![image](https://user-images.githubusercontent.com/23250734/191895816-6cbc8202-e459-4e4d-b25d-c659bf998601.png)
+
+서로 다른 DB를 사용하지만 이벤트 호출 및 동작이 되는 것을 확인할 수 있다.
 
 
