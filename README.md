@@ -944,3 +944,44 @@ spec:
 siege를 통해 지속적인 호출을 하였지만, 중단되지 않는 것을 확인할 수 있다.
 
 ![image](https://user-images.githubusercontent.com/23250734/191700800-2a46f200-f7fe-4433-b449-af35720c9ab6.png)
+
+
+--------------------------------------------------
+## Config Map / Persistence Volume
+
+```
+일반적으로 Pod는 종료/재생성될 경우 가지고 있던 데이터를 잃어버린다.
+따라서 쿠버네티스에선 데이터를 저장할 공간을 만들 수 있도록 제공하는데 이를 Persistence Volumn이라고 한다.
+
+또한 각 서비스에서 DB에 접근이 필요할 경우, DB접속정보나 패스워드 같은 설정, 민감정보들을 공통으로 사용하게 된다.
+쿠버네티스에선 이런 정보 관리를 위해 ConfigMap, Secret과 같은 객체를 제공한다.
+
+Mysql DB 생성 후 서비스에 연결, pod 재시작 후 데이터가 유실되지 않는 것을 테스트한다.
+```
+#### mysql 준비
+
+mysql deployment.yaml 작성 후 쿠버네티스에 배포한다.
+
+deployment.yaml에 PVC 도 함께 생성하였다.
+
+!!! 이미지 추가 !!!!!
+
+![image](https://user-images.githubusercontent.com/23250734/191879122-4fdd9e79-6f17-420e-91c2-de088e1056de.png)
+
+#### 테스트
+
+order서비스에 사용자 명령어를 통해 order를 생성하고 DB에 데이터 저장된 것을 확인한다.
+
+![image](https://user-images.githubusercontent.com/23250734/191879207-43fd8ad5-7fcd-4e44-a3ec-6505cb62ed06.png)
+
+mysql를 종료 후 재시작한다.
+
+![image](https://user-images.githubusercontent.com/23250734/191879296-6e6ed711-9f0e-436a-ad4f-b9855aab50ca.png)
+
+![image](https://user-images.githubusercontent.com/23250734/191879422-d70fb39f-0260-4a4b-91aa-c42a38c3dc25.png)
+
+mysql을 종료 후 재시작해도 데이터가 유지되는 것을 확인한다.
+
+![image](https://user-images.githubusercontent.com/23250734/191879464-b9bd10d9-8d29-4582-9b4a-6b4ea9e5eab3.png)
+
+
