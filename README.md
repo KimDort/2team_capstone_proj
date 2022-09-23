@@ -710,7 +710,29 @@ TODO
 --------------------------------------------------
 ## Autoscale(HPA)
 
-TODO
+```
+쿠버네티스 설정을 통해 서비스에 부하 발생 시 여분의 pod를 생성해 부하 분산을 할 수 있음 (오토스케일링)
+```
+
+#### 사전 작업
+```
+//order deployment에 오토스케일링 설정.
+kubectl autoscale deployment order --cpu-percent=20 --min=1 --max=3
+```
+
+#### 오토스케일링 테스트
+
+부하 전 일반적인 상태의 pod목록
+
+![Att496C tmp](https://user-images.githubusercontent.com/23250734/191880960-d7254a70-b7a0-4915-bd39-b46dfbda5900.png)
+
+부하 발생
+
+![image](https://user-images.githubusercontent.com/23250734/191881023-ebff8a29-10a7-49a2-afc4-0384097036c8.png)
+
+오토스케일
+
+![image](https://user-images.githubusercontent.com/23250734/191881093-2155115b-c677-4338-974e-44ecd4e56d00.png)
 
 
 --------------------------------------------------
@@ -978,6 +1000,10 @@ spec:
     requests:
       storage: 1Mi
 ```
+
+![image](https://user-images.githubusercontent.com/23250734/191880907-4904b240-a6ad-4e8c-933d-c5d2f7345d45.png)
+
+
 
 mysqlsecret.yaml
 
